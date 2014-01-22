@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="366" height="84" title="选择服务器" >
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			
+			public var hostGM:JMSGGM = null;
+			
+			protected function btnOk_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				if(hostGM)
+				{
+					hostGM.requesturl = urlInput.text;
+					hostGM.urlInput.text = urlInput.text;
+					PopUpManager.removePopUp(this);
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	
+	<s:HGroup width="343" horizontalCenter="0" verticalAlign="middle" verticalCenter="0">
+		<s:TextInput id="urlInput" horizontalCenter="0" verticalCenter="0" text="http://172.26.192.221:8888/api/" textAlign="center" width="250"/>
+		<s:Button id="btnOk" label="OK" click="btnOk_clickHandler(event)" />
+	</s:HGroup>
+	
+</s:Panel>

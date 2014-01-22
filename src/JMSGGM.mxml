@@ -7,12 +7,14 @@
 		<![CDATA[
 			import mx.controls.Alert;
 			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
 			
 			import tools.Json.JSON;
 			
 			private var urlLoader:URLLoader;  
 			private var urlVariables:URLVariables;  
-			private var requesturl:String ="http://172.26.192.221:8888/api/";
+			public var requesturl:String ="http://172.26.192.221:8888/api/";
+			
 			private var request:URLRequest;  
 			private var resultStr:String;
 			
@@ -30,6 +32,8 @@
 			private var opType_Copy:String = "CopyPlayerInfo";
 			
 			private var curOptType:String = "";
+			
+			private var serverChangePanel:ServerChoose = null;
 			
 			private function configureListeners(dispatcher:IEventDispatcher):void 
 			{    
@@ -189,7 +193,6 @@
 			{
 				curOptType = optype;
 				
-				requesturl = urlInput.text;
 				requesturl += optype;
 				
 				request = new URLRequest(requesturl);  
@@ -381,7 +384,14 @@
 				
 				Security.allowDomain('*');
 				Security.loadPolicyFile("http://172.26.192.221:8888/crossdomain.xml");
-//				Security.loadPolicyFile("http://t2.szsg.xindong.com:52000/api/pp");
+				
+				if(serverChangePanel == null)
+				{
+					serverChangePanel = new ServerChoose();
+					PopUpManager.addPopUp(serverChangePanel,this,true,null);
+					PopUpManager.centerPopUp(serverChangePanel);
+					serverChangePanel.hostGM = this;
+				}
 			}
 			
 			protected function btnGotoLevel_clickHandler(event:MouseEvent):void
@@ -435,7 +445,7 @@
 	
 	<s:HGroup horizontalAlign="center" horizontalCenter="0" verticalAlign="middle">
 		<s:Label text="url地址" textAlign="center" />
-		<s:TextInput id="urlInput" width="296" text="http://172.26.192.221:8888/api/"/>
+		<s:TextInput id="urlInput" width="296" text="" editable="false"/>
 	</s:HGroup>
 	
 	<s:BorderContainer horizontalCenter="0" y="40">
