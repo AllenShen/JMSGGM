@@ -1,0 +1,523 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600" creationComplete="application1_creationCompleteHandler(event)">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			
+			import tools.Json.JSON;
+			
+			private var urlLoader:URLLoader;  
+			private var urlVariables:URLVariables;  
+			private var requesturl:String ="http://172.26.192.221:8888/api/";
+			private var request:URLRequest;  
+			private var resultStr:String;
+			
+			private var opType_Query:String = "QueryUserInfo";
+			private var opType_AddGold:String = "AddGold";
+			
+			private var opType_AddPower:String = "AddPower";
+			private var opType_AddStone:String = "AddStone";
+			private var opType_SetGuanqia:String = "SetGuanqia";
+			private var opType_SetVip:String = "SetVip";
+			private var opType_AddArm:String = "AddArm";
+			private var opType_AddHero:String = "AddHero";
+			
+			private var opType_Clear:String = "CleanSystemData";
+			private var opType_Copy:String = "CopyPlayerInfo";
+			
+			private var curOptType:String = "";
+			
+			private function configureListeners(dispatcher:IEventDispatcher):void 
+			{    
+				dispatcher.addEventListener(Event.COMPLETE, loaderHandler);    
+				dispatcher.addEventListener(Event.OPEN, loaderHandler);    
+				dispatcher.addEventListener(ProgressEvent.PROGRESS, loaderHandler);    
+				dispatcher.addEventListener(SecurityErrorEvent.SECURITY_ERROR, loaderHandler);    
+				dispatcher.addEventListener(HTTPStatusEvent.HTTP_STATUS, loaderHandler);    
+				dispatcher.addEventListener(IOErrorEvent.IO_ERROR, loaderHandler);   
+			}   
+			
+			private function handleSingleRetResult(data:String):void
+			{
+				var retData:Object = tools.Json.JSON.decode(data);
+				var retCode:int = retData["ret"];
+				switch(curOptType)
+				{
+					case opType_Query:
+						if(retCode != 0)
+						{
+							Alert.show("查不到用户信息");
+							return;
+						}
+						coinsShow.text = retData["gold"].toString();
+						tiliShow.text = retData["power"].toString();
+						qianghuashiShow.text = retData["stone"].toString();
+						currentChapterShow.text = retData["chapter"].toString();
+						currentChapterGuanQiaShow.text = retData["c_guanqia"].toString();
+						currentGuanQiaIdShow.text = retData["s_guanqia"].toString();
+						vipLevelShow.text = retData["vip"].toString();
+						break;
+					case opType_AddGold:
+						if(retCode != 0)
+						{
+							Alert.show("操作失败 请刷新页面");
+							return;
+						}
+						coinsShow.text = retData["num"].toString();
+						break;
+					case opType_AddPower:
+						if(retCode != 0)
+						{
+							Alert.show("操作失败 请刷新页面");
+							return;
+						}
+						tiliShow.text = retData["num"].toString();
+						break;
+					case opType_AddStone:
+						if(retCode != 0)
+						{
+							Alert.show("操作失败 请刷新页面");
+							return;
+						}
+						qianghuashiShow.text = retData["num"].toString();
+						break;
+					case opType_SetGuanqia:
+						if(retCode != 0)
+						{
+							Alert.show("操作失败 请刷新页面");
+							return;
+						}
+						currentChapterShow.text = retData["chapter"].toString();
+						currentChapterGuanQiaShow.text = retData["c_guanqia"].toString();
+						currentGuanQiaIdShow.text = retData["s_guanqia"].toString();
+						break;
+					case opType_SetVip:
+						if(retCode != 0)
+						{
+							Alert.show("操作失败 请刷新页面");
+							return;
+						}
+						vipLevelShow.text = retData["num"].toString();
+						break;
+					case opType_AddArm:
+						if(retCode != 0)
+						{
+							Alert.show("操作失败 请刷新页面");
+							return;
+						}
+						else
+						{
+							var totalStr:String = "添加 " + retData["aid"].toString();
+							Alert.show(totalStr);
+						}
+						break;
+					case opType_AddHero:
+						if(retCode != 0)
+						{
+							Alert.show("操作失败 请刷新页面");
+							return;
+						}
+						else
+						{
+							var totalStr:String = "添加 " + retData["hid"].toString();
+							Alert.show(totalStr);
+						}
+						break;
+					case opType_Clear:
+						if(retCode != 0)
+						{
+							Alert.show("操作失败 请刷新页面");
+							return;
+						}
+						else
+						{
+							Alert.show("系统数据清除成功");
+						}
+						break;
+					case opType_Copy:
+						if(retCode != 0)
+						{
+							Alert.show("操作失败 请刷新页面");
+							return;
+						}
+						else
+						{
+							Alert.show("玩家信息拷贝成功!");
+						}
+						break;
+				}
+			}
+			
+			private function loaderHandler(event:Event):void   
+			{   
+				switch(event.type) {   
+					case Event.COMPLETE:   
+						trace("成功: ");  
+						resultStr = urlLoader.data; //请求成功，并取得返回值  
+						showLoadStatus(false);
+						handleSingleRetResult(resultStr);
+						break;   
+					case Event.OPEN:   
+						trace("open: " + event);
+						showLoadStatus(true,"连接中");
+						break;   
+					case ProgressEvent.PROGRESS:   
+						trace("progress: " + event);
+						showLoadStatus(true,"处理中");
+						break;   
+					case SecurityErrorEvent.SECURITY_ERROR:  
+					case IOErrorEvent.IO_ERROR:   
+						trace("securityError: " + event);   
+						showLoadStatus(true,"出现错误请刷新页面");
+						break;   
+					case HTTPStatusEvent.HTTP_STATUS:   
+						trace("httpStatus: " + event);   
+						break;   
+				}   
+			}
+			
+			private function showLoadStatus(bShow:Boolean,type:String = ""):void
+			{
+				maskBorderContainer.visible = bShow;
+			}
+			
+			private function sendContnetRequest(contentData:Object,optype:String):void
+			{
+				curOptType = optype;
+				
+				requesturl = urlInput.text;
+				requesturl += optype;
+				
+				request = new URLRequest(requesturl);  
+				if(contentData)
+					request.data = tools.Json.JSON.encode(contentData);
+				
+				request.method = URLRequestMethod.POST;  
+				
+				try 
+				{  
+					showLoadStatus(true);
+					urlLoader.load(request);//开始发送请求  
+				}
+				catch (error:Error)
+				{  
+					showLoadStatus(true,"发送失败 请刷新页面");
+				}  
+			}
+			
+			protected function btnSeachr_clickHandler(event:MouseEvent):void
+			{
+				if(nameInput.text == "")
+				{
+					Alert.show("用户名不能为空");
+					return;
+				}
+				
+				var contentData:Object = new Object;
+				contentData["name"] = nameInput.text;
+				
+				sendContnetRequest(contentData,opType_Query);
+			}
+			
+			private function onGetSearchUserCallBack(data:String):void
+			{
+				
+			}
+			
+			protected function btnAddCoins_clickHandler(event:MouseEvent):void
+			{
+				if(nameInput.text == "")
+				{
+					Alert.show("用户名不能为空");
+					return;
+				}
+				
+				if(addCoinsCount.text == "")
+				{
+					Alert.show("金币数量不能为空");
+					return;
+				}
+				
+				
+				var contentData:Object = new Object;
+				contentData["name"] = nameInput.text;
+				contentData["num"] = int(addCoinsCount.text);
+				
+				sendContnetRequest(contentData,opType_AddGold);
+			}
+			
+			protected function btnAddTili_clickHandler(event:MouseEvent):void
+			{
+				if(nameInput.text == "")
+				{
+					Alert.show("用户名不能为空");
+					return;
+				}
+				
+				if(addTiliCount.text == "")
+				{
+					Alert.show("体力数量不能为空");
+					return;
+				}
+				
+				var contentData:Object = new Object;
+				contentData["name"] = nameInput.text;
+				contentData["num"] = int(addTiliCount.text);
+				
+				sendContnetRequest(contentData,opType_AddPower);
+			}
+			
+			protected function btnAddQiangHuaShi_clickHandler(event:MouseEvent):void
+			{
+				if(nameInput.text == "")
+				{
+					Alert.show("用户名不能为空");
+					return;
+				}
+				
+				if(addCoinsCount.text == "")
+				{
+					Alert.show("强化石数量不能为空");
+					return;
+				}
+				
+				var contentData:Object = new Object;
+				contentData["name"] = nameInput.text;
+				contentData["num"] = int(addQiangHuaShi.text);
+				
+				sendContnetRequest(contentData,opType_AddStone);
+			}
+			
+			protected function btnAddArm_clickHandler(event:MouseEvent):void
+			{
+				if(nameInput.text == "")
+				{
+					Alert.show("用户名不能为空");
+					return;
+				}
+				
+				if(addArm.text == "")
+				{
+					Alert.show("小兵id不能为空");
+					return;
+				}
+				
+				var contentData:Object = new Object;
+				contentData["name"] = nameInput.text;
+				contentData["aid"] = int(addArm.text);
+				
+				sendContnetRequest(contentData,opType_AddArm);
+			}
+			
+			protected function btnAddHero_clickHandler(event:MouseEvent):void
+			{
+				if(nameInput.text == "")
+				{
+					Alert.show("用户名不能为空");
+					return;
+				}
+				
+				if(addHero.text == "")
+				{
+					Alert.show("武将id不能为空");
+					return;
+				}
+				
+				var contentData:Object = new Object;
+				contentData["name"] = nameInput.text;
+				contentData["hid"] = int(addHero.text);
+				
+				sendContnetRequest(contentData,opType_AddHero);
+			}
+			
+			protected function btnGoToGuanQia_clickHandler(event:MouseEvent):void
+			{
+				if(nameInput.text == "")
+				{
+					Alert.show("用户名不能为空");
+					return;
+				}
+				
+				if(chapterId.text == "")
+				{
+					Alert.show("关卡id不能为空");
+					return;
+				}	
+				
+				if(chapterGuanQiaId.text == "")
+				{
+					Alert.show("章节关卡id不能为空");
+					return;
+				}	
+				
+				if(GuanQiaIdInput.text == "")
+				{
+					Alert.show("子关卡id不能为空");
+					return;
+				}	
+				
+				var contentData:Object = new Object;
+				contentData["name"] = nameInput.text;
+				contentData["chapter"] = int(chapterId.text);
+				contentData["c_guanqia"] = int(chapterGuanQiaId.text);
+				contentData["s_guanqia"] = int(GuanQiaIdInput.text);
+				
+				sendContnetRequest(contentData,opType_SetGuanqia);
+			}
+			
+			protected function btnClearSysData_clickHandler(event:MouseEvent):void
+			{
+				sendContnetRequest(null,opType_Clear);
+			}
+			
+			protected function application1_creationCompleteHandler(event:FlexEvent):void
+			{
+				urlLoader = new URLLoader();  
+				configureListeners(urlLoader);//给urlloader对象添加监听事件  
+				
+				Security.allowDomain('*');
+				Security.loadPolicyFile("http://172.26.192.221:8888/crossdomain.xml");
+//				Security.loadPolicyFile("http://t2.szsg.xindong.com:52000/api/pp");
+			}
+			
+			protected function btnGotoLevel_clickHandler(event:MouseEvent):void
+			{
+				if(nameInput.text == "")
+				{
+					Alert.show("用户名不能为空");
+					return;
+				}
+				
+				if(targetLevelInput.text == "")
+				{
+					Alert.show("vip等级不能为空");
+					return;
+				}	
+				
+				var contentData:Object = new Object;
+				contentData["name"] = nameInput.text;
+				contentData["vip"] = targetLevelInput.text;
+				
+				sendContnetRequest(contentData,opType_SetVip);
+			}
+			
+			protected function btnCopy_clickHandler(event:MouseEvent):void
+			{
+				if(nameInput.text == "")
+				{
+					Alert.show("用户名不能为空");
+					return;
+				}
+				
+				if(targetNameInput.text == "")
+				{
+					Alert.show("目标用户不能为空");
+					return;
+				}		
+				
+				var contentData:Object = new Object;
+				contentData["name"] = nameInput.text;
+				contentData["to_name"] = targetNameInput.text;
+				
+				sendContnetRequest(contentData,opType_Copy);
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	
+	<s:HGroup horizontalAlign="center" horizontalCenter="0" verticalAlign="middle">
+		<s:Label text="url地址" textAlign="center" />
+		<s:TextInput id="urlInput" width="296" text="http://172.26.192.221:8888/api/"/>
+	</s:HGroup>
+	
+	<s:BorderContainer horizontalCenter="0" y="40">
+		
+		<s:VGroup >
+			
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="用户名" width="60" textAlign="center" verticalAlign="middle"/>
+				<s:TextInput id="nameInput" />
+				<s:Button id="btnSeachr" width="49" label="查询" click="btnSeachr_clickHandler(event)"/>
+				
+				<s:TextInput id="targetNameInput" />
+				<s:Button id="btnCopy" width="49" label="copy" click="btnCopy_clickHandler(event)"/>
+			</s:HGroup>
+			
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="金币" textAlign="center" verticalAlign="middle" width="60"/>
+				<s:TextInput id="coinsShow" editable="false"/>
+				
+				<s:TextInput id="addCoinsCount" />
+				<s:Button id="btnAddCoins" label="加钱" click="btnAddCoins_clickHandler(event)" />
+							 
+			</s:HGroup>
+			
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="体力" textAlign="center" verticalAlign="middle" width="60"/>
+				<s:TextInput id="tiliShow" editable="false" />
+				
+				<s:TextInput id="addTiliCount" />
+				<s:Button id="btnAddTili" label="加体力" click="btnAddTili_clickHandler(event)" />
+				
+			</s:HGroup>
+			
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="强化石" textAlign="center" verticalAlign="middle" width="60"/>
+				<s:TextInput id="qianghuashiShow" editable="false" />
+				
+				<s:TextInput id="addQiangHuaShi" />
+				<s:Button id="btnAddQiangHuaShi" label="加强化石" click="btnAddQiangHuaShi_clickHandler(event)" />
+			</s:HGroup>
+			
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="当期关卡" textAlign="center" verticalAlign="middle" width="60"/>
+				<s:TextInput id="currentChapterShow" width="34" editable="false"/>
+				<s:TextInput id="currentChapterGuanQiaShow" width="34" editable="false"/>
+				<s:TextInput id="currentGuanQiaIdShow" width="44" editable="false"/>
+				
+				<s:TextInput id="chapterId" width="39" />
+				<s:TextInput id="chapterGuanQiaId" width="38" />
+				<s:TextInput id="GuanQiaIdInput" width="38" />
+				<s:Button id="btnGoToGuanQia" click="btnGoToGuanQia_clickHandler(event)" label="去这一关" />
+			</s:HGroup>
+			
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="VIP等级" textAlign="center" verticalAlign="middle" width="60"/>
+				<s:TextInput id="vipLevelShow" editable="false" />
+				
+				<s:TextInput id="targetLevelInput" />
+				<s:Button id="btnGotoLevel" label="到这一级" click="btnGotoLevel_clickHandler(event)"/>
+			</s:HGroup>
+			
+			<s:HGroup verticalAlign="middle">
+				<s:TextInput id="addArm" textAlign="center" />
+				<s:Button id="btnAddArm" label="加兵" buttonMode="true" click="btnAddArm_clickHandler(event)" />
+			</s:HGroup>
+			
+			<s:HGroup>
+				<s:TextInput id="addHero" />
+				<s:Button id="btnAddHero" label="加武将" buttonMode="true" click="btnAddHero_clickHandler(event)" />
+			</s:HGroup>
+			
+			<s:HGroup height="30" horizontalAlign="center" verticalAlign="middle" horizontalCenter="0">
+				<s:Button id="btnClearSysData" width="389" height="33" label="清除系统数据"
+						  click="btnClearSysData_clickHandler(event)" buttonMode="true"/>
+			</s:HGroup>
+			
+		</s:VGroup>
+		
+	</s:BorderContainer>
+	
+	<s:BorderContainer id="maskBorderContainer" backgroundColor="0" backgroundAlpha="0.3" visible="false" width="100%" height="100%" horizontalCenter="0" verticalCenter="0">
+		<s:Label text="正在通信中" horizontalCenter="0" verticalCenter="0" fontSize="30" />
+	</s:BorderContainer>
+	
+</s:Application>
