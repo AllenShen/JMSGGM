@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
-		 xmlns:mx="library://ns.adobe.com/flex/mx" width="366" height="84" title="选择服务器" >
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="326" height="106" title="选择服务器" >
 	
 	<fx:Script>
 		<![CDATA[
@@ -17,6 +17,7 @@
 				{
 					hostGM.requesturl = urlInput.text;
 					hostGM.urlInput.text = urlInput.text;
+					hostGM.redisIndex = int(dbIndexSelect.text);
 					PopUpManager.removePopUp(this);
 				}
 			}
@@ -28,9 +29,17 @@
 		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
 	</fx:Declarations>
 	
-	<s:HGroup width="343" horizontalCenter="0" verticalAlign="middle" verticalCenter="0">
-		<s:TextInput id="urlInput" horizontalCenter="0" verticalCenter="0" text="http://172.26.192.221:8888/api/" textAlign="center" width="250"/>
-		<s:Button id="btnOk" label="OK" click="btnOk_clickHandler(event)" />
-	</s:HGroup>
+	<s:VGroup horizontalCenter="0" horizontalAlign="center" gap="1" >
+		<s:HGroup horizontalCenter="0" verticalAlign="middle" verticalCenter="0">
+			<s:TextInput id="urlInput" horizontalCenter="0" verticalCenter="0" text="http://172.26.192.221:8888/api/" textAlign="center" width="250"/>
+		</s:HGroup>
+		<s:HGroup verticalAlign="middle">
+			<s:Label text="数据库" />
+			<s:TextInput id="dbIndexSelect" width="39" text="4"/>
+		</s:HGroup>
+		<s:HGroup >
+			<s:Button id="btnOk" label="OK" click="btnOk_clickHandler(event)" buttonMode="true"/>
+		</s:HGroup>
+	</s:VGroup>
 	
 </s:Panel>

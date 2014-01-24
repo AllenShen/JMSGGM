@@ -14,6 +14,7 @@
 			private var urlLoader:URLLoader;  
 			private var urlVariables:URLVariables;  
 			public var requesturl:String ="http://172.26.192.221:8888/api/";
+			public var redisIndex:int = 4;
 			
 			private var request:URLRequest;  
 			private var resultStr:String;
@@ -30,6 +31,7 @@
 			
 			private var opType_Clear:String = "CleanSystemData";
 			private var opType_Copy:String = "CopyPlayerInfo";
+			private var opType_ClearUserInfo:String = "InitPlayer";
 			
 			private var curOptType:String = "";
 			
@@ -193,9 +195,12 @@
 			{
 				curOptType = optype;
 				
-				requesturl += optype;
+				var curRequestUrl:String = requesturl;
+				curRequestUrl += optype;
 				
-				request = new URLRequest(requesturl);  
+				request = new URLRequest(curRequestUrl);  
+				
+				contentData["DB"] = redisIndex;
 				if(contentData)
 					request.data = tools.Json.JSON.encode(contentData);
 				
@@ -436,6 +441,20 @@
 				sendContnetRequest(contentData,opType_Copy);
 			}
 			
+			protected function btnClearPlayer_clickHandler(event:MouseEvent):void
+			{
+				if(nameInput.text == "")
+				{
+					Alert.show("用户名不能为空");
+					return;
+				}
+				
+				var contentData:Object = new Object;
+				contentData["name"] = nameInput.text;
+				
+				sendContnetRequest(contentData,opType_ClearUserInfo);
+			}
+			
 		]]>
 	</fx:Script>
 	
@@ -518,8 +537,7 @@
 			</s:HGroup>
 			
 			<s:HGroup height="30" horizontalAlign="center" verticalAlign="middle" horizontalCenter="0">
-				<s:Button id="btnClearSysData" width="389" height="33" label="清除系统数据"
-						  click="btnClearSysData_clickHandler(event)" buttonMode="true"/>
+				<s:Button id="btnClearPlayer" label="清除玩家数据" click="btnClearPlayer_clickHandler(event)" buttonMode="true" />
 			</s:HGroup>
 			
 		</s:VGroup>
