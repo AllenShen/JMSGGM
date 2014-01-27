@@ -13,7 +13,7 @@
 			
 			private var urlLoader:URLLoader;  
 			private var urlVariables:URLVariables;  
-			public var requesturl:String ="http://172.26.192.221:8888/api/";
+			public var requesturl:String ="http://42.62.67.240:8888/api/";
 			public var redisIndex:int = 4;
 			
 			private var request:URLRequest;  
@@ -386,9 +386,6 @@
 			{
 				urlLoader = new URLLoader();  
 				configureListeners(urlLoader);//给urlloader对象添加监听事件  
-				
-				Security.allowDomain('*');
-				Security.loadPolicyFile("http://172.26.192.221:8888/crossdomain.xml");
 				
 				if(serverChangePanel == null)
 				{

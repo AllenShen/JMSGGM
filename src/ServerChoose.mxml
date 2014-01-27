@@ -5,6 +5,7 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import mx.collections.ArrayCollection;
 			import mx.events.FlexEvent;
 			import mx.managers.PopUpManager;
 			
@@ -12,12 +13,11 @@
 			
 			protected function btnOk_clickHandler(event:MouseEvent):void
 			{
-				// TODO Auto-generated method stub
 				if(hostGM)
 				{
 					hostGM.requesturl = urlInput.text;
 					hostGM.urlInput.text = urlInput.text;
-					hostGM.redisIndex = int(dbIndexSelect.text);
+					hostGM.redisIndex = int(DBConfigs.getserverIndex(sourceDB.selectedItem["type"]));
 					PopUpManager.removePopUp(this);
 				}
 			}
@@ -29,13 +29,15 @@
 		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
 	</fx:Declarations>
 	
-	<s:VGroup horizontalCenter="0" horizontalAlign="center" gap="1" >
-		<s:HGroup horizontalCenter="0" verticalAlign="middle" verticalCenter="0">
-			<s:TextInput id="urlInput" horizontalCenter="0" verticalCenter="0" text="http://172.26.192.221:8888/api/" textAlign="center" width="250"/>
+	<s:VGroup width="275" gap="1" horizontalAlign="center" horizontalCenter="0">
+		<s:HGroup width="254" horizontalCenter="0" verticalAlign="middle" verticalCenter="0">
+			<s:Label text="目标URL" />
+			<s:TextInput id="urlInput" width="194" horizontalCenter="25"
+						 text="http://42.62.67.240:8888/api/" textAlign="center" verticalCenter="0"/>
 		</s:HGroup>
 		<s:HGroup verticalAlign="middle">
-			<s:Label text="数据库" />
-			<s:TextInput id="dbIndexSelect" width="39" text="4"/>
+			<s:Label text="目标数据库" />
+			<s:ComboBox id="sourceDB" width="135" dataProvider="{DBConfigs.allSpecialTypes}" labelField="desc" selectedIndex="0" />	
 		</s:HGroup>
 		<s:HGroup >
 			<s:Button id="btnOk" label="OK" click="btnOk_clickHandler(event)" buttonMode="true"/>
