@@ -225,6 +225,14 @@
 					return;
 				}
 				
+				coinsShow.text = "";
+				tiliShow.text = "";
+				qianghuashiShow.text = "";
+				currentChapterShow.text = "";
+				currentChapterGuanQiaShow.text = "";
+				currentGuanQiaIdShow.text = "";
+				vipLevelShow.text = "";
+				
 				var contentData:Object = new Object;
 				contentData["name"] = nameInput.text;
 				
@@ -287,7 +295,7 @@
 					return;
 				}
 				
-				if(addCoinsCount.text == "")
+				if(addQiangHuaShi.text == "")
 				{
 					Alert.show("强化石数量不能为空");
 					return;
